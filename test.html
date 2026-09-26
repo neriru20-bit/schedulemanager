@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>定期テスト一覧（共有版）</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        input, textarea, select { width: 100%; margin: 5px 0; }
+        button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<h2>定期テストの追加（共有）</h2>
+
+<select id="subject">
+    <option value="現代国語">現代国語</option>
+    <option value="言語文化">言語文化</option>
+    <option value="論理表現">論理表現</option>
+    <option value="数学Ⅰ">数学Ⅰ</option>
+    <option value="数学A">数学A</option>
+    <option value="物理">物理</option>
+    <option value="生物">生物</option>
+    <option value="歴史">歴史</option>
+    <option value="コミュ英">コミュ英</option>
+    <option value="情報">情報</option>
+    <option value="家庭科">家庭科</option>
+    <option value="保健">保健</option>
+    <option value="体育">体育</option>
+</select>
+
+<input id="date" type="date">
+<textarea id="range" placeholder="テスト範囲"></textarea>
+<textarea id="detail" placeholder="メモ"></textarea>
+
+<button onclick="addExam()">追加する</button>
+
+<h2>定期テスト一覧（共有）</h2>
+<div id="list"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // ★ あなたの Firebase 設定（そのまま使用）
+    const firebaseConfig = {
+      apiKey: "AIzaSyCsCJrtnRzsb_kAacqb2Q5JacJMNUP8C8w",
+      authDomain: "schedulemanager-6c27d.firebaseapp.com",
+      projectId: "schedulemanager-6c27d",
+      storageBucket: "schedulemanager-6c27d.firebasestorage.app",
+      messagingSenderId: "132654712821",
+      appId: "1:132654712821:web:e47f43f3bf1e5d5ab9c2bc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const examsRef = collection(db, "exams");
+
+    async function addExam() {
+        const subject = document.getElementById("subject").value;
+        const date = document.getElementById("date").value;
+        const range = document.getElementById("range").value;
+        const detail = document.getElementById("detail").value;
+
+        if (!subject || !date) {
+            alert("科目・日付は必須です");
+            return;
+        }
+
+        await addDoc(examsRef, {
+            subject, date, range, detail
+        });
+
+        load();
+    }
+
+    async function load() {
+        const list = document.getElementById("list");
+        list.innerHTML = "";
+
+        const snapshot = await getDocs(examsRef);
+        const exams = [];
+
+        snapshot.forEach(docSnap => {
+            exams.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        exams.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+                <strong>${item.subject}</strong><br>
+                日付: ${item.date}<br>
+                範囲: ${item.range || "（なし）"}<br>
+                メモ: ${item.detail || "（なし）"}<br>
+                <button onclick="deleteExam('${item.id}')">削除</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    async function deleteExam(id) {
+        await deleteDoc(doc(db, "exams", id));
+        load();
+    }
+
+    load();
+</script>
+
+</body>
+</html>
