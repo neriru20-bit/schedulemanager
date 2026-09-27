@@ -1,6 +1,15 @@
+window.addItem = addItem;
+window.deleteItem = deleteItem;
+window.prevMonth = prevMonth;
+window.nextMonth = nextMonth;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc }
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+window.addItem = addItem;
+window.deleteItem = deleteItem;
+window.prevMonth = prevMonth;
+window.nextMonth = nextMonth;
 
 const firebaseConfig = {
   apiKey: "AIzaSyCsCJrtnRzsb_kAacqb2Q5JacJMNUP8C8w",
